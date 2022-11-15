@@ -1,0 +1,75 @@
+OVERVIEW:
+My PacMan program has 14 classes (App, PaneOrganizer, SideBar, Game, Ghost, Pacman, Maze, MazeSquare, Lives, Energizer,
+Dot, Constants, and BoardCoordinate), 2 enums (Direction and GameMode) and 1 interface (Collidable). These classes and
+interfaces interact in the following ways
+
+    - App starts the program setting the stage and displaying an instance of PaneOrganizer
+    - PaneOrganizer is the top level graphical class and is responsible for creating the game itself, the side bar,
+    the main game pane, and displaying the correct ending label. PaneOrganizer contains Game and SideBar.
+    - SideBar is responsible for creating the elements that exist at the bottom of the game: the score label,
+    the lives label, and the quit button. SideBar contains Score and Lives.
+    - The Game class is the top-level logic class that is responsible for controlling aspects that affect the entire
+    game such as the timeline, keyboard movement, checking game over status, handling gameMode changes, etc. The Game class contains instances of
+    Ghost, Maze, Pacman, and GameMode. This class is associated with PaneOrganizer so that it can retrieve the same instances
+    of Lives and Score created by PaneOrganizer.
+    - The Score class is responsible for keeping track of the current score and is incremented everytime a dot, energizer,
+    or ghost is eaten.
+    - The Lives class is responsible for keeping track of the number of lives remaining starting with 3 and decrementing
+    everytime Pacman collides with a Ghost in Chase or Scatter Mode.
+    - The GameMode enum is used to keep track of the current game mode as it changes frequently depending on if an energizer
+    is eaten or if the timeline counter reaches a certain condition.
+    - The Ghost class is responsible for controlling the ghost's movement in the game. The Ghost class is associated with the
+    Game class so that it can reference the necessary instances created by the Game class such as the gamePane and the maze.
+    Ghost implements the Collidable interface since it can be collided with Pacman.
+    - The Pacman class is responsible for moving pacman across the maze and takes in the Game's gamePane so that the constructor
+    can graphically add it to the pane.
+    - Both the Ghost class and Pacman class use the Direction enum to initialize their directions in the respective constructors.
+    Both classes initialize their direction to UP since both Pacman and Ghost cannot move UP since there is a wall.
+    - The Maze class is the top level class for creating the Game's board. It contains instances of Energizer, Dot, and MazeSquare.
+    It is associated with the Game class so that it can add MazeSquares to the gamePane and associate the instances of Energizer and Dot
+    it creates with Game.
+    - The Energizer class is responsible for graphically creating Energizers found in the game and implements the Collidable interface.
+    This class is responsible for changing the GameMode to frighten once collided with. It is associated with the Game class.
+    - The Dot class is responsible for graphically creating and adding Dots to the game and also implements the Collidable interface.
+    - The MazeSquare class is responsible for creating the individual squares on the board and contains data structures to house
+    if any Collidable objects are currently contained in itself.
+    - The Constants class contains many static variables (ints, BoardCoordinates, etc.) that are not changed throughout the Game.
+    For example, it contains the Chase and Scatter Targets for each of the ghosts as they are constant.
+
+DESIGN CHOICES:
+My getNeighbors method in the Ghost class contains some unsual logic so that it can be used for enquening valid neighbors both outside of the
+while loop ad inside the while loop. The getNeighbors method takes in a counter variable to keep track of wehter the direction the
+method should be assigning should be the same as the start square (called when inside the while loop) or if it should be the intial
+direction (called outside the while loop).
+
+The Game class contains an Array to house the ghosts at their initial positions with ghosts[0] being assigned to Blinky. I
+made this data structure so that the Game could differentiate between Ghosts since they don't change their position
+within the array. This was especially useful when maintaining high levels of abstraction within the Ghost class itself as
+it allowed me to call general methods on Ghost while still being able to tell which ghost was which, used when collision
+happens in Frightened mode so that Blinky's location is set to be inside the pen.
+
+The addToWinner method in the Game class is used to keep track of only dots and energizers that Pacman collides with so
+that the Game can know when Pacman has eaten all the dots or energizers and display a Winner label.
+
+In my Maze class, when GHOST_START_LOCATION is called, it instantiates a new BoardCoordinate that corresponds to the instance
+variables in this class so that the Game class can properly instantiate each Ghost with its respective locations.
+
+I chose to create an interface for all Collidable elements (Ghost, Dot, Energizer) so that the MazeSquare class could generally
+add and remove these elements to its contained elements ArrayList by preserving abstraction. Using polymorphism in this way
+helped me generalize Collidable objects and the onCollision method is Overriden and specified in each class that impelemtns
+the interface. I chose not to use inheritance in this case since Dots, Energizers, and Ghosts all vary differently in their behaviors;
+however, they all share the behavior to be collided with pacman.
+
+KNOWN BUGS:
+When a ghost tries to wrap to the other side of the screen, it causes an infinite while loop in my getNieghbors method.
+I tried to fix this by null checking and hard coding in my getNieghbors method if the col == 0 or col == 22; however
+this did not solve the issue. The program freezes in this case and will need to be restarted to continue :(
+
+Ocaisonally, when a Ghost and Pacman are moving in opposite directions towards each other, they will not collide. I tried
+to solve this by checking for intersections after moving pacman and after moving the ghosts; however, ocaisonally, this bug
+still occurs.
+
+HOURS:
+~50, but don't be mistaken, this project took YEARS off of my life...
+
+DEBUGGING COLLABORATORS: None
